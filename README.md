@@ -25,10 +25,15 @@ GitHub Actions (tous les jours ~5h30)
 
 ### L'interface
 
-- **Accueil** : le brief du jour (nombre de sujets, temps de lecture), un carrousel « À la une » avec le sujet principal de chaque rubrique, une tuile par catégorie avec ses 3 premiers titres, et les principaux cours de bourse.
-- **Une page par catégorie** : « L'essentiel » en une phrase, les sujets numérotés par importance, leurs sources et la liste des articles d'origine (liens). La page Tech affiche aussi tous les cours avec la courbe du dernier mois.
-- **Barre de navigation en bas**, comme dans une app. Les sujets ouverts sont marqués comme lus (sur cet appareil), et l'accueil affiche le nombre de sujets non lus par catégorie.
-- Thème clair/sombre automatique selon le téléphone.
+Une app web conçue comme une app mobile : une seule page sans rechargement, une barre d'onglets en bas, et le thème clair ou sombre du téléphone.
+
+- **Aujourd'hui** : le brief du jour avec un anneau de progression (sujets lus / total), le sujet principal en grand, le sujet n°1 de chaque autre rubrique, les 3 premiers sujets par rubrique et un aperçu des marchés.
+- **Rubriques** : un sélecteur (on peut aussi balayer à gauche ou à droite), « L'essentiel » de la rubrique et les sujets en cartes, avec un badge « Nouveau ».
+- **Marchés** : tous les cours, sur 1 jour, 5 jours ou 1 mois ; la courbe et le pourcentage suivent la période choisie.
+- **Enregistrés** : les sujets mis de côté, conservés d'un jour à l'autre.
+- **Fiche d'un sujet** : elle monte du bas de l'écran (on la ferme en la glissant vers le bas ou avec le bouton retour) et contient le résumé, les boutons Enregistrer et Partager, et la liste des articles de presse.
+
+Les sujets lus et enregistrés restent sur le téléphone, rien n'est envoyé ailleurs.
 
 Pas de serveur à payer : tout tourne sur GitHub. La « app » sur le téléphone, c'est :
 - l'app **ntfy** (gratuite, Android/iOS) qui reçoit la notification ;
