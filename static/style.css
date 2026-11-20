@@ -44,6 +44,8 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--label); }
+html, body { overflow-x: hidden; max-width: 100%; }
+h1, h2, h3, h4, p, .t { overflow-wrap: anywhere; }
 body {
   font: 17px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -114,6 +116,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 
 /* ---------- Carte « héros » ---------- */
 .hero {
+  min-width: 0;
   margin: 0 16px; padding: 20px; min-height: 220px; border-radius: var(--r-lg);
   color: #fff; position: relative; overflow: hidden; width: calc(100% - 32px);
   background: linear-gradient(160deg, color-mix(in srgb, var(--c) 75%, #fff) -20%, var(--c) 35%, color-mix(in srgb, var(--c) 50%, #000) 110%);
@@ -130,6 +133,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
 .rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 16px 8px; scroll-padding: 0 16px; scrollbar-width: none; }
 .rail::-webkit-scrollbar { display: none; }
 .mini {
+  min-width: 0; overflow: hidden;
   flex: 0 0 76%; max-width: 300px; scroll-snap-align: start; text-align: left;
   background: var(--bg-elev); border-radius: var(--r-md); padding: 14px; box-shadow: var(--shadow);
   display: flex; flex-direction: column; gap: 6px; min-height: 150px;
@@ -184,8 +188,8 @@ svg.spark { overflow: visible; }
 .overview .m { margin-top: 8px; font-size: 13px; color: var(--label-3); }
 
 /* ---------- Cartes de sujets ---------- */
-.cards { display: grid; gap: 12px; padding: 0 16px; }
-.card { display: block; width: 100%; text-align: left; background: var(--bg-elev); border-radius: var(--r-lg); padding: 16px; box-shadow: var(--shadow); }
+.cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 0 16px; }
+.card { display: block; width: 100%; min-width: 0; overflow: hidden; text-align: left; background: var(--bg-elev); border-radius: var(--r-lg); padding: 16px; box-shadow: var(--shadow); }
 .card .top { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--label-3); }
 .card .top .num { font-weight: 800; color: var(--c); }
 .card .top .new { margin-left: auto; font-size: 11px; font-weight: 700; color: #fff; background: var(--tint); padding: 2px 8px; border-radius: 999px; }
@@ -286,3 +290,24 @@ svg.spark { overflow: visible; }
   .segmented button[aria-pressed="true"] { background: #636366; }
   .toast { background: rgba(235, 235, 245, .95); color: #000; }
 }
+
+/* ---------- Ajustements petits écrans (Samsung 360 px, etc.) ---------- */
+.qrow .main { min-width: 0; }
+.qrow .t { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.qrow .s { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero h3 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.card h3 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.row .t, .mini h4 { overflow-wrap: break-word; }
+@media (max-width: 380px) {
+  .large-title h1 { font-size: 30px; }
+  .hero { min-height: 190px; padding: 18px; }
+  .hero h3 { font-size: 21px; }
+  .card h3 { font-size: 18px; }
+  .sheet h2 { font-size: 24px; }
+  .qrow svg.spark { display: none; }
+  .qrow .r { min-width: 84px; }
+  .brief-stats b { font-size: 18px; }
+  .tabbar a { font-size: 10px; }
+}
+.sheet [data-close]:focus:not(:focus-visible) { outline: none; }
+.hero .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }

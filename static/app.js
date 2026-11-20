@@ -288,7 +288,9 @@
     document.body.classList.add("locked");
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       sheet.classList.add("open"); backdrop.classList.add("open");
-      var c = sheet.querySelector("[data-close]"); if (c) c.focus({ preventScroll: true });
+      // Focus clavier seulement (pas sur écran tactile, pour éviter un cadre bleu)
+      var c = sheet.querySelector("[data-close]");
+      if (c && window.matchMedia && matchMedia("(hover: hover)").matches) c.focus({ preventScroll: true });
     }); });
   }
   function hideSheet() {
