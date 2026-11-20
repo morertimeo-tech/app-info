@@ -6,6 +6,10 @@ on:
     # est programmée pour arriver à 8h00 pile (heure de Paris) via ntfy.
     # Marge volontaire : les crons GitHub ont souvent 10-30 min de retard.
     - cron: "30 4 * * *"
+  # Republie l'app à chaque modification du code (sans notification)
+  push:
+    branches: [claude/news-aggregator-app-mhrly6, main]
+    paths: ["news/**", "static/**", "requirements.txt", ".github/workflows/**"]
   workflow_dispatch:
     inputs:
       notify_now:
@@ -52,6 +56,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Notification (ntfy)
+        if: github.event_name != 'push'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
