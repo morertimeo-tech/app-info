@@ -20,6 +20,9 @@ def google_news(query: str, lang: str = "fr") -> str:
 CATEGORIES = [
     {
         "id": "politique",
+        "short": "Politique",
+        "color": "#3b6cf6",
+        "tagline": "Gouvernement, Assemblée, partis",
         "title": "Politique française",
         "emoji": "🇫🇷",
         "feeds": [
@@ -35,6 +38,9 @@ CATEGORIES = [
     },
     {
         "id": "gaming",
+        "short": "Gaming",
+        "color": "#8b5cf6",
+        "tagline": "Sorties, annonces, industrie",
         "title": "Gaming mondial",
         "emoji": "🎮",
         "feeds": [
@@ -51,6 +57,9 @@ CATEGORIES = [
     },
     {
         "id": "minecraft-valorant",
+        "short": "MC & Valo",
+        "color": "#16a34a",
+        "tagline": "Mises à jour, patchs, esport",
         "title": "Minecraft & Valorant",
         "emoji": "⛏️",
         "feeds": [
@@ -65,6 +74,9 @@ CATEGORIES = [
     },
     {
         "id": "tech",
+        "short": "Tech",
+        "color": "#f59e0b",
+        "tagline": "Nvidia, Microsoft, Google, IA, bourse",
         "title": "Big Tech, IA & Bourse",
         "emoji": "📈",
         "feeds": [

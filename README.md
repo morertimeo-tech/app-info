@@ -23,6 +23,13 @@ GitHub Actions (tous les jours ~5h30)
   → programme une notification ntfy pour 8h00 → ton téléphone
 ```
 
+### L'interface
+
+- **Accueil** : le brief du jour (nombre de sujets, temps de lecture), un carrousel « À la une » avec le sujet principal de chaque rubrique, une tuile par catégorie avec ses 3 premiers titres, et les principaux cours de bourse.
+- **Une page par catégorie** : « L'essentiel » en une phrase, les sujets numérotés par importance, leurs sources et la liste des articles d'origine (liens). La page Tech affiche aussi tous les cours avec la courbe du dernier mois.
+- **Barre de navigation en bas**, comme dans une app. Les sujets ouverts sont marqués comme lus (sur cet appareil), et l'accueil affiche le nombre de sujets non lus par catégorie.
+- Thème clair/sombre automatique selon le téléphone.
+
 Pas de serveur à payer : tout tourne sur GitHub. La « app » sur le téléphone, c'est :
 - l'app **ntfy** (gratuite, Android/iOS) qui reçoit la notification ;
 - la **page web** qui s'ouvre quand tu touches la notification. Tu peux l'ajouter à ton écran d'accueil (« Ajouter à l'écran d'accueil ») pour qu'elle se comporte comme une app.

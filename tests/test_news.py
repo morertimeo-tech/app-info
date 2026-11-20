@@ -26,7 +26,7 @@ def test_delivery_is_8am_paris():
 def test_local_clustering_groups_same_story():
     now = datetime.now(TZ)
     arts = demo_articles("gaming", now)
-    arts.append(summarize.Article(id="x", title="Big studio announces new open-world RPG trailer",
+    arts.append(summarize.Article(id="x", title="Major studio reveals its next open-world RPG trailer",
                                   link="l", source="Polygon", published=now - timedelta(hours=5)))
     stories = summarize.cluster_locally(arts, 10)
     assert len(stories[0].articles) == 2  # repris par 2 sources -> en tête

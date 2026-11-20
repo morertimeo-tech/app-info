@@ -1,0 +1,65 @@
+{% extends "base.html.j2" %}
+{% from "macros.html.j2" import quote_row %}
+{% block title %}{{ d.title }} — Infos du jour{% endblock %}
+{% block accent %}--accent: {{ d.color }}{% endblock %}
+{% block body %}
+<header class="cat-header">
+  <div class="wrap">
+    <a class="back" href="index.html" aria-label="Retour à l'accueil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1>{{ d.emoji }} {{ d.title }}</h1>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cat-hero">
+    <span class="kicker">{{ d.stories|length }} sujet{{ 's' if d.stories|length > 1 }} · {{ d.article_count }} article{{ 's' if d.article_count > 1 }}</span>
+    <h2>{{ d.tagline }}</h2>
+  </div>
+
+  {% if d.overview %}
+  <div class="essential"><b>L'essentiel</b><p>{{ d.overview }}</p></div>
+  {% endif %}
+
+  {% if d.id == "tech" and quotes %}
+  <div class="section-title" id="marches"><h2>Marchés</h2></div>
+  <div class="market">{% for q in quotes %}{{ quote_row(q) }}{% endfor %}</div>
+  <div class="section-title"><h2>Actualités</h2></div>
+  {% endif %}
+
+  {% if d.stories %}
+  <div class="stories">
+    {% for s in d.stories %}
+    <article class="story" id="{{ s.anchor }}">
+      <div class="story-top">
+        <span class="rank"><span>{{ loop.index }}</span></span>
+        <h3>{{ s.title }}</h3>
+      </div>
+      <p class="summary">{{ s.summary }}</p>
+      <div class="chips">{% for src in s.sources %}<span class="chip">{{ src }}</span>{% endfor %}</div>
+      <details>
+        <summary><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          {% if s.articles|length > 1 %}Lire les {{ s.articles|length }} articles{% else %}Lire l'article{% endif %}</summary>
+        <ul class="links">
+          {% for a in s.articles %}
+          <li><a href="{{ a.link }}" target="_blank" rel="noopener">
+            <span class="t">{{ a.title }}</span>
+            <span class="m">{{ a.source }} · {{ a.local_time }} ↗</span>
+          </a></li>
+          {% endfor %}
+        </ul>
+      </details>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="big">🌙</div><p>Rien de nouveau dans cette rubrique sur les dernières 24h.</p></div>
+  {% endif %}
+
+  <a class="next" href="{{ next.id }}.html" style="--accent: {{ next.color }}">
+    <span><small>Rubrique suivante</small><b>{{ next.emoji }} {{ next.title }}</b></span>
+    <span aria-hidden="true">→</span>
+  </a>
+</main>
+{% endblock %}

@@ -41,6 +41,9 @@ class CategoryDigest:
     stories: list[Story]
     article_count: int
     ai_generated: bool
+    short: str = ""
+    color: str = "#64748b"
+    tagline: str = ""
 
 
 # --------------------------------------------------------------------------- #
@@ -190,5 +193,7 @@ def build_digest(category: dict, articles: list[Article], extra_context: str = "
     return CategoryDigest(
         id=category["id"], title=category["title"], emoji=category["emoji"],
         overview=overview, stories=stories, article_count=len(articles), ai_generated=ai,
+        short=category.get("short", category["title"]), color=category.get("color", "#64748b"),
+        tagline=category.get("tagline", ""),
     )
 

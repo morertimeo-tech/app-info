@@ -40,17 +40,16 @@ def main() -> None:
     since = now - timedelta(hours=args.hours)
 
     if args.demo:
-        from .demo import demo_articles, demo_quotes
+        from .demo import demo_digest, demo_quotes
         quotes = demo_quotes()
-        per_cat = {c["id"]: demo_articles(c["id"], now) for c in CATEGORIES}
+        digests = [demo_digest(c, now) for c in CATEGORIES]
     else:
         quotes = fetch_quotes(TICKERS)
-        per_cat = {c["id"]: fetch_category(c, since) for c in CATEGORIES}
-
-    digests = []
-    for cat in CATEGORIES:
-        extra = quotes_as_text(quotes) if cat["id"] == "tech" and quotes else ""
-        digests.append(build_digest(cat, per_cat[cat["id"]], extra))
+        digests = []
+        for cat in CATEGORIES:
+            articles = fetch_category(cat, since)
+            extra = quotes_as_text(quotes) if cat["id"] == "tech" and quotes else ""
+            digests.append(build_digest(cat, articles, extra))
 
     index = render(digests, quotes, now, Path(args.out))
     log.info("Page générée : %s", index)
