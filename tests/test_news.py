@@ -92,3 +92,20 @@ def test_free_mode_groups_variants_and_prefers_french():
     market = next(s for s in stories if "marché" in s.title)
     assert "Lire la suite" not in market.summary                      # chapô nettoyé
     assert summarize.local_overview(stories).startswith("Budget")     # sujet le plus repris en tête
+
+
+def test_free_mode_no_chaining_and_no_guides():
+    arts = [
+        _art(0, "Anthropic finalise son entrée en Bourse record", "Les Echos"),
+        _art(1, "Entrée en Bourse record pour Anthropic, l'action s'envole", "BFM"),
+        _art(2, "Nvidia : la SEC enquête, l'action en Bourse chute", "Le Monde"),
+        _art(3, "GTA 6 : nos 5 meilleures astuces pour profiter de la carte", "JV"),
+        _art(4, "Fusil de sniper GTA 6 : où trouver la meilleure arme ?", "JV"),
+        _art(5, "GTA 6 entre dans l'histoire avec 32,5 millions de précommandes", "Gamekult"),
+        _art(6, "GTA 6 : 32,5 millions de précommandes, un record historique", "IGN France"),
+    ]
+    stories = summarize.cluster_locally(arts, 10)
+    sizes = {s.title: len(s.articles) for s in stories}
+    assert not any("astuces" in t or "sniper" in t for t in sizes)   # guides écartés
+    assert any("Nvidia" in t and n == 1 for t, n in sizes.items())     # pas fusionné avec Anthropic
+    assert max(n for t, n in sizes.items() if "GTA" in t) == 2         # GTA 6 regroupé

@@ -55,7 +55,8 @@ STOPWORDS = set(
     "les des une un le la de du et en au aux pour par sur avec dans est qui que "
     "son ses sa ce cette ces plus pas mais sont été être fait faire après vers selon "
     "the and for with from that this are has have will its into after over new "
-    "what how why your you just now more about here".split()
+    "what how why your you just now more about here "
+    "est aux qui que pas une sur par its has new are was but not all can out our get one two ont ils elle".split()
 )
 STOPWORDS = {unicodedata.normalize("NFKD", w).encode("ascii", "ignore").decode() for w in STOPWORDS}
 FRENCH_WORDS = {"le", "la", "les", "des", "du", "une", "est", "pour", "sur", "avec", "dans", "et", "aux", "au", "pas", "qui"}
@@ -65,6 +66,14 @@ AD_RE = re.compile(
     r"bon(s)? plan|code promo|\bpromo\b|promotion|soldes|black friday|cyber monday|prime day|"
     r"\bdeal(s)?\b|\bsale\b|% de réduction|% off|prix cassé|au meilleur prix|à moins de \d|"
     r"meilleures? offres?|sponsoris|partenariat|concours|giveaway|à gagner",
+    re.IGNORECASE,
+)
+# Guides, astuces et soluces : utiles en jeu, mais pas des actus
+GUIDE_RE = re.compile(
+    r"\bastuces?\b|\bguides?\b|\bsoluces?\b|\bwalkthrough|\bhow to\b|\btips\b|"
+    r"\bcomment (finir|trouver|obtenir|débloquer|réussir|battre|avoir)\b|\boù trouver\b|"
+    r"\btous les (chapitres|secrets|emplacements)|\btoutes les (missions|armes|scènes|cartes)|"
+    r"\bwhere to find\b|\bbest (weapons?|builds?|settings)\b|\bnos \d+ meilleur",
     re.IGNORECASE,
 )
 # Fins de chapô ajoutées par les flux (« Lire la suite », « The post … appeared first on … »)
@@ -82,7 +91,7 @@ def _tokens(title: str) -> set[str]:
     """Mots significatifs du titre, sans accents et tronqués (dévoile ≈ dévoilé ≈ dévoilent)."""
     title = re.sub(r"\b[cdjlmnst]['’]", "", title, flags=re.IGNORECASE)  # l'Assemblée → Assemblée
     words = _strip_accents(normalize_title(title)).split()
-    return {w[:6] for w in words if (len(w) > 3 or w.isdigit()) and w not in STOPWORDS}
+    return {w[:6] for w in words if (len(w) >= 3 or w.isdigit()) and w not in STOPWORDS}
 
 
 def is_french(text: str) -> bool:
@@ -91,7 +100,8 @@ def is_french(text: str) -> bool:
 
 
 def is_ad(article: Article) -> bool:
-    return bool(AD_RE.search(article.title))
+    """Pubs, promos et guides de jeu : écartés de la revue de presse."""
+    return bool(AD_RE.search(article.title) or GUIDE_RE.search(article.title))
 
 
 def clean_summary(text: str) -> str:
@@ -120,7 +130,9 @@ def cluster_locally(articles: list[Article], max_stories: int) -> list[Story]:
         if not toks:
             continue
         for members in clusters:
-            if any(_same_story(toks, t) for t, _ in members):
+            # On compare au premier article du sujet seulement : sinon les sujets
+            # s'enchaînent de proche en proche (Anthropic → Nvidia → SEC → …)
+            if _same_story(toks, members[0][0]):
                 members.append((toks, art))
                 break
         else:
