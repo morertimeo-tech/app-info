@@ -7,9 +7,9 @@ Rubriques :
 | Rubrique | Sources |
 |---|---|
 | 🇫🇷 Politique française | Le Monde, franceinfo, Le Figaro, Libération, 20 Minutes, Google News |
-| 🎮 Gaming mondial | Jeuxvideo.com, Gamekult, Millenium, IGN, Eurogamer, The Verge, Polygon |
+| 🎮 Gaming mondial | Jeuxvideo.com, Gamekult, IGN, Eurogamer, The Verge, Polygon |
 | ⛏️ Minecraft & Valorant | Minecraft.net, Google News (FR + EN) |
-| 📈 Big Tech, IA & Bourse | Les Echos, Numerama, The Verge, TechCrunch, CNBC, Google News + cours de Nvidia, Microsoft, Alphabet, Apple, Meta, Amazon, Tesla, AMD, Ubisoft, Nasdaq, S&P 500, CAC 40 |
+| 📈 Big Tech, IA & Bourse | Numerama, The Verge, TechCrunch, CNBC, Google News + cours de Nvidia, Microsoft, Alphabet, Apple, Meta, Amazon, Tesla, AMD, Ubisoft, Nasdaq, S&P 500, CAC 40 |
 
 Tout se règle dans [`news/sources.py`](news/sources.py) : ajouter un journal, une action, une rubrique.
 

@@ -46,7 +46,6 @@ CATEGORIES = [
         "feeds": [
             ("Jeuxvideo.com", "https://www.jeuxvideo.com/rss/rss.xml"),
             ("Gamekult", "https://www.gamekult.com/feed.xml"),
-            ("Millenium", "https://www.millenium.org/rss"),
             ("IGN", "https://feeds.feedburner.com/ign/all"),
             ("Eurogamer", "https://www.eurogamer.net/feed"),
             ("The Verge", "https://www.theverge.com/rss/games/index.xml"),
@@ -80,7 +79,6 @@ CATEGORIES = [
         "title": "Big Tech, IA & Bourse",
         "emoji": "📈",
         "feeds": [
-            ("Les Echos", "https://services.lesechos.fr/rss/les-echos-tech-medias.xml"),
             ("Numerama", "https://www.numerama.com/feed/"),
             ("The Verge", "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"),
             ("TechCrunch", "https://techcrunch.com/category/artificial-intelligence/feed/"),
