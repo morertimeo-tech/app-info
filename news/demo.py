@@ -36,9 +36,13 @@ _SAMPLES = {
         ("The Verge", "Cloud gaming service adds 20 titles to its catalog",
          "Subscribers get access to several recent releases at no extra cost."),
     ],
-    "minecraft-valorant": [
+    "minecraft": [
         ("Minecraft.net", "Minecraft : nouvelle snapshot avec blocs décoratifs et nouveaux mobs",
          "La snapshot de la semaine ajoute des blocs décoratifs, un mob passif et corrige une quarantaine de bugs."),
+        ("Millenium", "Minecraft Live : les nouveautés de la prochaine mise à jour dévoilées",
+         "Mojang a présenté un nouveau biome et de nouvelles créatures lors de son événement."),
+    ],
+    "valorant": [
         ("Dexerto", "Valorant patch notes: duelist nerfs and map pool update",
          "Riot adjusts two duelists and rotates one map out of competitive play."),
         ("Millenium", "VCT : le calendrier de la prochaine saison dévoilé",
@@ -64,7 +68,8 @@ _GROUPS = {"politique": [([0, 1], 0)], "gaming": [([0, 1], 1)], "tech": [([0, 1]
 _OVERVIEWS = {
     "politique": "Le budget domine l'actualité : l'exécutif se prépare à un 49.3, les oppositions brandissent la censure.",
     "gaming": "Un RPG très attendu se dévoile, et le marché français reste bien orienté en fin d'année.",
-    "minecraft-valorant": "Nouvelle snapshot côté Minecraft, équilibrage des duellistes et calendrier esport côté Valorant.",
+    "minecraft": "Nouvelle snapshot et annonces du Minecraft Live pour la prochaine mise à jour.",
+    "valorant": "Équilibrage des duellistes et calendrier de la prochaine saison VCT.",
     "tech": "Nvidia signe un nouveau record grâce à l'IA ; Microsoft et Google accélèrent sur les assistants.",
 }
 
