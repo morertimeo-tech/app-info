@@ -68,3 +68,27 @@ def test_refusal_falls_back_to_local(monkeypatch):
     monkeypatch.setattr(anthropic, "Anthropic", FakeClient)
     digest = summarize.build_digest(CAT, demo_articles("politique", datetime.now(TZ)))
     assert not digest.ai_generated and digest.stories
+
+
+def _art(i, title, source, summary="", hours=1):
+    return summarize.Article(id=f"t-{i}", title=title, link="https://x", source=source,
+                             published=datetime.now(TZ) - timedelta(hours=hours), summary=summary)
+
+
+def test_free_mode_groups_variants_and_prefers_french():
+    arts = [
+        _art(0, "A major studio reveals its next open-world RPG", "IGN", "The trailer shows a fantasy world."),
+        _art(1, "Un grand studio dévoile son prochain RPG en monde ouvert", "Jeuxvideo.com", "La bande-annonce montre un monde."),
+        _art(2, "Budget 2027 : le gouvernement prêt à recourir au 49.3", "Le Monde", "Faute de majorité…"),
+        _art(3, "Budget : vers un nouveau 49.3 à l'Assemblée", "franceinfo", ""),
+        _art(4, "Bon plan : la PS5 à prix cassé pour le Black Friday", "Dealabs"),
+        _art(5, "Le marché du jeu vidéo progresse", "Gamekult", "Hausse de 8 %. Lire la suite"),
+    ]
+    stories = summarize.cluster_locally(arts, 10)
+    titles = [s.title for s in stories]
+    assert not any("Bon plan" in t for t in titles)                 # pub filtrée
+    budget = next(s for s in stories if "Budget" in s.title)
+    assert len(budget.articles) == 2                                  # même sujet regroupé
+    market = next(s for s in stories if "marché" in s.title)
+    assert "Lire la suite" not in market.summary                      # chapô nettoyé
+    assert summarize.local_overview(stories).startswith("Budget")     # sujet le plus repris en tête

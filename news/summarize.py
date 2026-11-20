@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import logging
 import os
+import re
+import unicodedata
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
@@ -47,17 +49,54 @@ class CategoryDigest:
 
 
 # --------------------------------------------------------------------------- #
-# Mode sans IA
+# Mode sans IA (gratuit)
 # --------------------------------------------------------------------------- #
 STOPWORDS = set(
     "les des une un le la de du et en au aux pour par sur avec dans est qui que "
-    "son ses sa ce cette ces plus pas the and for with from that this are has "
-    "have will its into after over new what how why".split()
+    "son ses sa ce cette ces plus pas mais sont été être fait faire après vers selon "
+    "the and for with from that this are has have will its into after over new "
+    "what how why your you just now more about here".split()
+)
+STOPWORDS = {unicodedata.normalize("NFKD", w).encode("ascii", "ignore").decode() for w in STOPWORDS}
+FRENCH_WORDS = {"le", "la", "les", "des", "du", "une", "est", "pour", "sur", "avec", "dans", "et", "aux", "au", "pas", "qui"}
+
+# Pubs, promos et « bons plans » : inutiles dans une revue de presse
+AD_RE = re.compile(
+    r"bon(s)? plan|code promo|\bpromo\b|promotion|soldes|black friday|cyber monday|prime day|"
+    r"\bdeal(s)?\b|\bsale\b|% de réduction|% off|prix cassé|au meilleur prix|à moins de \d|"
+    r"meilleures? offres?|sponsoris|partenariat|concours|giveaway|à gagner",
+    re.IGNORECASE,
+)
+# Fins de chapô ajoutées par les flux (« Lire la suite », « The post … appeared first on … »)
+JUNK_RE = re.compile(
+    r"(the post .* appeared first on .*|lire la suite.*|continue reading.*|read more.*|\[(…|\.\.\.)\]|\(…\))$",
+    re.IGNORECASE,
 )
 
 
+def _strip_accents(text: str) -> str:
+    return unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+
+
 def _tokens(title: str) -> set[str]:
-    return {w for w in normalize_title(title).split() if len(w) > 3 and w not in STOPWORDS}
+    """Mots significatifs du titre, sans accents et tronqués (dévoile ≈ dévoilé ≈ dévoilent)."""
+    title = re.sub(r"\b[cdjlmnst]['’]", "", title, flags=re.IGNORECASE)  # l'Assemblée → Assemblée
+    words = _strip_accents(normalize_title(title)).split()
+    return {w[:6] for w in words if (len(w) > 3 or w.isdigit()) and w not in STOPWORDS}
+
+
+def is_french(text: str) -> bool:
+    words = set(text.lower().split())
+    return len(words & FRENCH_WORDS) >= 2 or bool(re.search(r"[éèêàùçôî]", text.lower()))
+
+
+def is_ad(article: Article) -> bool:
+    return bool(AD_RE.search(article.title))
+
+
+def clean_summary(text: str) -> str:
+    text = JUNK_RE.sub("", text.strip()).strip()
+    return text.rstrip(" -–—:")
 
 
 def _shorten(text: str, limit: int = 320) -> str:
@@ -67,26 +106,62 @@ def _shorten(text: str, limit: int = 320) -> str:
     return cut.rstrip(",;:") + "…"
 
 
+def _same_story(a: set[str], b: set[str]) -> bool:
+    """Deux titres parlent du même sujet s'ils partagent assez de mots importants."""
+    common = len(a & b)
+    return common >= 3 or (common >= 2 and common / min(len(a), len(b)) >= 0.5)
+
+
 def cluster_locally(articles: list[Article], max_stories: int) -> list[Story]:
-    clusters: list[tuple[set[str], list[Article]]] = []
+    articles = [a for a in articles if not is_ad(a)]
+    clusters: list[list[tuple[set[str], Article]]] = []
     for art in articles:
         toks = _tokens(art.title)
-        for ctoks, members in clusters:
-            if toks and ctoks and len(toks & ctoks) / len(toks | ctoks) >= 0.3:
-                members.append(art)
-                ctoks |= toks
+        if not toks:
+            continue
+        for members in clusters:
+            if any(_same_story(toks, t) for t, _ in members):
+                members.append((toks, art))
                 break
         else:
-            clusters.append((toks, [art]))
+            clusters.append([(toks, art)])
 
-    # Les sujets repris par plusieurs journaux d'abord, puis les plus récents
-    clusters.sort(key=lambda c: (len({a.source for a in c[1]}), c[1][0].published), reverse=True)
+    def rank(members):
+        arts = [a for _, a in members]
+        return (
+            len({a.source for a in arts}),                 # repris par plusieurs journaux
+            any(is_french(a.title) for a in arts),         # disponible en français
+            max(a.published for a in arts),                # le plus récent
+        )
+
+    clusters.sort(key=rank, reverse=True)
     stories = []
-    for _, members in clusters[:max_stories]:
-        lead = max(members, key=lambda a: len(a.summary))
-        summary = _shorten(lead.summary) if lead.summary else "Pas de résumé fourni par la source."
-        stories.append(Story(title=members[0].title, summary=summary, articles=members))
+    for members in clusters[:max_stories]:
+        arts = sorted((a for _, a in members), key=lambda a: a.published, reverse=True)
+        french = [a for a in arts if is_french(a.title)]
+        title_art = french[0] if french else arts[0]
+        with_summary = [a for a in (french or arts) if clean_summary(a.summary)] or \
+                       [a for a in arts if clean_summary(a.summary)]
+        if with_summary:
+            summary = _shorten(clean_summary(max(with_summary, key=lambda a: len(a.summary)).summary))
+        else:
+            summary = "Le journal ne fournit pas de résumé : ouvre l'article pour le détail."
+        stories.append(Story(title=title_art.title, summary=summary, articles=arts))
     return stories
+
+
+def local_overview(stories: list[Story]) -> str:
+    """« L'essentiel » sans IA : le sujet le plus repris, puis les suivants."""
+    if not stories:
+        return ""
+    top = stories[0]
+    text = top.title.rstrip(".")
+    if len(top.sources) > 1:
+        text += f" (repris par {len(top.sources)} journaux)"
+    others = [s.title.rstrip(".") for s in stories[1:3]]
+    if others:
+        text += ". Aussi : " + " ; ".join(others)
+    return text + "."
 
 
 # --------------------------------------------------------------------------- #
@@ -188,8 +263,9 @@ def build_digest(category: dict, articles: list[Article], extra_context: str = "
             ai = True
     if articles and not stories:
         stories = cluster_locally(articles, category["max_stories"])
-        n_sources = len({a.source for a in articles})
-        overview = f"{len(articles)} articles de {n_sources} sources sur les dernières 24h."
+        overview = local_overview(stories)
+    for s in stories:  # visible dans les journaux GitHub Actions, pour vérifier le tri
+        log.info("  [%s] %d source(s) · %s", category["id"], len(s.sources), s.title[:90])
     return CategoryDigest(
         id=category["id"], title=category["title"], emoji=category["emoji"],
         overview=overview, stories=stories, article_count=len(articles), ai_generated=ai,
